@@ -2,5 +2,5 @@
 
 class Boss(object):
     pass
-
+123
 

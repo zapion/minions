@@ -1,7 +1,15 @@
 #!/usr/bin/python
 
+from subprocess import Popen, PIPE
 
-class Minions(object):
+
+def shell_cmd(cmd):
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+    out = p.communicate()
+    return {'stdout': out[0], 'stderr': out[1]}
+
+
+class Minion(object):
     # An abtract class for spawning status collectors and emitters
     # 2 types of minions used
     # 1. periodical:
@@ -15,22 +23,19 @@ class Minions(object):
     #       if func is string, run it as a system command
     name = None
     interval = None
-    variant = None
 
-    def __init__(self, variant="periodical", interval=300, func=None, name):
+    def __init__(self, name, func=None):
         self.name = name
-        self.variant = variant
-        if variant == 'periodical':
-            if interval <= 0:
-                raise ValueError("inverval should be greater than 0")
-            self.interval = interval
 
     def _work(self):
         '''
         Abtract private interface
         Return True if work is done successfully
         '''
-        raise NotImplementedError("%s's worker function is not yet implemented." % (self.__class__))
+        raise NotImplementedError(
+            "%s's worker function is not yet implemented." % (self.__class__)
+            )
+
     def collect(self):
         '''
         interface for collecting information from monitored target
@@ -47,4 +52,13 @@ class Minions(object):
         Parameters: None
         Return: True if emitting successfully
         '''
+        print("test")
         return True
+
+
+class PeriodicalMinion(Minion):
+    # Do periodical job
+    def __init__(self, name, func=None, interval=300):
+        if interval <= 0:
+            raise ValueError("inverval should be greater than 0")
+        self.interval = interval
