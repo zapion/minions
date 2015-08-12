@@ -20,6 +20,11 @@ class Boss(object):
         if self.default_path:
             self.load(self.default_path)
 
+    def load_dir(self, folder):
+        (dirpath, dirnames, filenames) = os.walk(folder).next()
+        for fn in filenames:
+            self.load(os.path.join(dirpath, fn))
+
     def load(self, fp):
         '''
         given a file
@@ -90,8 +95,8 @@ class Boss(object):
 
 def main():
     b = Boss()
-    b.load('./e481d81e.json')
-    b.load('./7ed3caf6.json')
+    # b.load('./e481d81e.json')
+    b.load('./conf/7ed3caf6.json')
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
     try:

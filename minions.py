@@ -3,14 +3,18 @@
 import os
 import time
 from subprocess import Popen, PIPE
-from enum import Enum
+from enum import IntEnum
+import json
 
 
-class status(Enum):
+class status(IntEnum):
     ok = 0
     warning = 1
     critical = 2
     unknown = 3
+
+    def default(self, obj):
+        return str(obj)
 
 # TODO: factory pattern should work here?
 
@@ -49,6 +53,8 @@ class Minion(object):
         if 'command' in kwargs:
             self.command = kwargs['command']
             self.description = ", Command: " + self.command
+        if 'output' in kwargs:
+            self.output_file = kwargs['output']['file']
         self.kwargs = kwargs
 
     def __str__(self):
@@ -83,6 +89,7 @@ class Minion(object):
             banana['status'] = status.critical
             banana['err_msg'] = e.message()
         self.banana = banana
+        self._output(banana)
         return banana
 
     def report(self):
@@ -96,14 +103,16 @@ class Minion(object):
         print("test")
         return True
 
-    def _output(self):
+    def _output(self, data):
         '''
         Default output to files with timestamp
         '''
         try:
             # TODO: parameter file path from config
-            with open('target') as fp:
-                print fp
+            # Should be a better way to do
+            timestamp = str(int(time.time()))
+            with open(self.output_file + "_" + timestamp, 'w') as oh:
+                oh.write(json.dumps(data))
         except Exception as e:
             print(e.message)
             return False
